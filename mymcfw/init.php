@@ -1,5 +1,5 @@
 <?php
-    error_reporting(0);
+    error_reporting(E_ALL&~E_NOTICE&~E_WARNING );
     include_once 'base/class/tdata.class.php';
     include_once 'base/class/db.class.php';
     include_once 'base/ioc/ioc.class.php';
