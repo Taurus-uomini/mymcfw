@@ -2,7 +2,7 @@
     class db
     {
         private $dbinfo=array();
-        private $mysqli=null;
+        private $dbh=null;
         private $result=null;
         private $tdata=null;
         function __construct($dbinfo, tdata $tdata)
@@ -13,26 +13,47 @@
         }
         function connect()
         {
-            $this->mysqli=new mysqli($this->dbinfo['url'],$this->dbinfo['user'],$this->dbinfo['password'],$this->dbinfo['database']);
-            if(mysqli_connect_errno())
+            try
+            {
+                $this->dbh=new PDO($this->dbinfo['sql'].':host='.$this->dbinfo['url'].';dbname='.$this->dbinfo['database'],$this->dbinfo['user'],$this->dbinfo['password'],array(PDO::ATTR_PERSISTENT=>true));
+            }
+            catch(PDOException $e)
             {
                 $this->tdata->setTData('error','connect db fail!');
                 $this->tdata->showInJson();
                 exit(1);
             }
-            $this->mysqli->set_charset("utf8");
         }
         function close()
         {
-            $this->mysqli->close();
+            $this->dbh=null;
         }
         function sqlselect($sql)
         {
             if($this->result)
             {
-                $this->result->close();
+                try
+                {
+                    $this->result->closeCursor();
+                }
+                catch(PDOException $e)
+                {
+                    $this->tdata->setTData('error','db fail!');
+                    $this->tdata->showInJson();
+                    exit(1);
+                }
+                $this->result=null;
             }
-            $this->result=$this->mysqli->query($sql);
+            try
+            {
+                $this->result=$this->dbh->query($sql);
+            }
+            catch(PDOException $e)
+            {
+                $this->tdata->setTData('error','db fail!');
+                $this->tdata->showInJson();
+                exit(1);
+            }
             return $this->getresult();
         }
         function getresult()
@@ -40,13 +61,31 @@
             if($this->result)
             {
                 $data=array();
-                $data['count']=$this->result->num_rows;
+                try
+                {
+                    $data['count']=$this->result->columnCount();
+                }
+                catch(PDOException $e)
+                {
+                    $this->tdata->setTData('error','db fail!');
+                    $this->tdata->showInJson();
+                    exit(1);
+                }
                 if($data['count']>0)
                 {
                     $result=array();
-                    while($row=$this->result->fetch_array(MYSQLI_ASSOC))
+                    try
                     {
-                        array_push($result,$row);
+                        while($row=$this->result->fetch(PDO::FETCH_ASSOC))
+                        {
+                            array_push($result,$row);
+                        }
+                    }
+                    catch(PDOException $e)
+                    {
+                        $this->tdata->setTData('error','db fail!');
+                        $this->tdata->showInJson();
+                        exit(1);
                     }
                     $data['result']=$result;
                 }
