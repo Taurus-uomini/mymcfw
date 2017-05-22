@@ -19,7 +19,8 @@
             exit(1);
         }
     });
-    $arr=explode('/',$_SERVER['REQUEST_URI']);
-    $controller=isset($arr[2])&&$arr[2]!=''?$arr[2].'Controller':'homeController';
-    $action=isset($arr[3])?$arr[3]:'index';
+    $uri=str_replace($config['webdir'],'',$_SERVER['REQUEST_URI']);
+    $arr=explode('/',$uri);
+    $controller=isset($arr[1])&&$arr[1]!=''?$arr[1].'Controller':'homeController';
+    $action=isset($arr[2])?$arr[2]:'index';
 ?>
