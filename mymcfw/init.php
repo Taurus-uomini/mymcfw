@@ -1,4 +1,5 @@
 <?php
+    error_reporting(0);
     include_once 'base/class/tdata.class.php';
     include_once 'base/class/db.class.php';
     include_once 'base/ioc/ioc.class.php';

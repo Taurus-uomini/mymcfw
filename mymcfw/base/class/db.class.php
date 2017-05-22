@@ -16,8 +16,8 @@
             $this->mysqli=new mysqli($this->dbinfo['url'],$this->dbinfo['user'],$this->dbinfo['password'],$this->dbinfo['database']);
             if(mysqli_connect_errno())
             {
-                $this->set('error','connect db fail!');
-                $this->showInJson();
+                $this->tdata->setTData('error','connect db fail!');
+                $this->tdata->showInJson();
                 exit(1);
             }
             $this->mysqli->set_charset("utf8");
